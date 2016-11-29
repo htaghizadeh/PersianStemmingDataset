@@ -1,0 +1,35 @@
+﻿Words count: 4689
+Stemming Errors: 408, 8.70%
+Accuracy: 4281, 91.30%
+Percision: 91.30%
+Recall: 55.53%
+F Measure: 69.05%
+
+Conflaction Groups in Understemming: 3597, 76.71%, 1.30
+UI: 0.51%, CI: 0.49%
+Overstemming Groups in Understemming: 3774, 80.49%, 1.24
+OI: 0.00%, OIL: 0.15%, DI: 0.85%
+SW: 0.00%, SW: 0.30%
+
+Understemming Errors: 301, 6.42%, 8.37%
+Overstemming Errors: 125, 2.67%, 3.31%
+
+Commission Errors: 215, 52.70%, 4.59%
+Ommission Errors: 193, 47.30%, 4.12%
+
+Error count per PoS tag:
+N: 212 of 3174, 6.68%
+R: 2 of 13, 15.38%
+T: 2 of 22, 9.09%
+Z: 3 of 21, 14.29%
+A: 57 of 893, 6.38%
+V: 124 of 304, 40.79%
+D: 8 of 132, 6.06%
+
+Commission errors:
+اخباری	خبر	Ncl	اخباری
+...
+
+Ommission errors:
+ارزی	ارزی	As	ارز
+...

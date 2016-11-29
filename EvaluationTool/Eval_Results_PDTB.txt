@@ -1,0 +1,35 @@
+﻿Words count: 26913
+Stemming Errors: 4644, 17.26%
+Accuracy: 22269, 82.74%
+Percision: 82.74%
+Recall: 56.75%
+F Measure: 67.33%
+
+Conflaction Groups in Understemming: 16378, 60.86%, 1.64
+UI: 0.54%, CI: 0.46%
+Overstemming Groups in Understemming: 17412, 64.70%, 1.55
+OI: 0.00%, OIL: 0.23%, DI: 0.77%
+SW: 0.00%, SW: 0.43%
+
+Understemming Errors: 3580, 13.30%, 21.86%
+Overstemming Errors: 2491, 9.26%, 14.31%
+
+Commission Errors: 2931, 63.11%, 10.89%
+Ommission Errors: 1713, 36.89%, 6.36%
+
+Error count per PoS tag:
+N: 2650 of 18782, 14.11%
+S: 1 of 24, 4.17%
+A: 630 of 5201, 12.11%
+C: 2 of 15, 13.33%
+P: 54 of 432, 12.50%
+I: 1 of 76, 1.32%
+V: 1306 of 2383, 54.80%
+
+Commission errors:
+اباطیل	باطل	N	اباطیل
+...
+
+Ommission errors:
+ابان	ابان	N	اب
+...
