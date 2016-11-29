@@ -8,7 +8,7 @@ There is no standard dataset for correctness evaluation of Persian stemming algo
 You can use the *evaluate.exe* in order to evalute your stemming results. It generates report based on your result. It supports all the metrics of stemming evalution such as *Accuracy*, *Percision*, *Recall*, *F-Measure*, *Understemming and Overstemming Errors*, *Commission and Ommission Errors*.
 
 ## Usage
-Each stemming dataset is consist of three columns. The first column is the inflected word, second is its stem and the third is its part-of-speech. You must be append your stems to fourth column. Then you can use below command.
+Each stemming dataset is consist of three columns. The first column is the inflected word, the second is its stem and the third is its part-of-speech. You must append your stems to the fourth column. Then you can use below command.
 ```batch
 Evaluate.exe "{your stemmed file path}" 1 3 {evaluation output file name}
 ```
