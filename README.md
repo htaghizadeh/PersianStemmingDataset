@@ -5,4 +5,5 @@ There is no standard dataset for correctness evaluation of Persian stemming algo
 
 ---
 [1] Ghayoomi, M. (2012) Bootstrapping the Development of an HPSG-based Treebank for Persian. Linguistic Issues in Language Technology, 7.
+
 [2] Rasooli, M. S., Moloodi, A., Kouhestani, M., and Minaei-Bidgoli, B. (2011) A syntactic valency lexicon for Persian verbs : The first steps towards Persian dependency treebank. 5th Language & Technology Conference (LTC) : Human Language Technologies as a Challenge for Computer Science and Linguistics, pp. 227–231.
