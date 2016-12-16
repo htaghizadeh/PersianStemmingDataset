@@ -6,14 +6,13 @@ uses
   System.SysUtils,
   Classes,
   Vcl.Forms,
-  UTools,
   uLevenshtein,
   System.StrUtils,
-  JclStrings,
   System.Types,
   System.TypInfo,
   Dialogs,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  UTools;
 
 type
   TConflations = Class;
@@ -94,10 +93,11 @@ type
     Procedure AssignValues(Value: TConflations);
     Procedure AddConflation(Value: TConflation);
     Procedure RemoveConflation(Value: TConflation);
-    Function CreateConflation(Const AMainStem1, AMainStem2, AWord, AStem1, AStem2: String)
-      : TConflation;
+    Function CreateConflation(Const AMainStem1, AMainStem2, AWord, AStem1,
+      AStem2: String): TConflation;
     Function IndexOf(Const AMainStem1: String): Integer;
-    Property Items[Index: Integer]: TConflation read GetItem write SetItem; default;
+    Property Items[Index: Integer]: TConflation read GetItem
+      write SetItem; default;
 
     property WordCount: Integer read FWordCount write FWordCount;
     property GDNT: Double read GetGDNT;
@@ -145,13 +145,14 @@ var
   Words, Stems: TStringDynArray;
   sInputFile, sOutputFile: string;
   fPercision, fRecall, fF: Double;
-  I, J, WordsCount, ErrorsCount, CommErr, OmmErr, UnderErr, OverErr, iConstantStemCount: Integer;
+  I, J, WordsCount, ErrorsCount, CommErr, OmmErr, UnderErr, OverErr,
+    iConstantStemCount: Integer;
   OutputFile, Commission, Ommission: TStringList;
   Understemming, Overstemming: TStemmingResult;
   TagDict: TDictionary<String, TRec>;
 
 const
-  SSeprator = NativeTab;
+  SSeprator = #9;
 
 function GetMostLikeIdx(const S: string; const sList: TStringDynArray): Integer;
 var
@@ -323,14 +324,14 @@ begin
   begin
     sl := TStringList.Create;
     try
-      sl.NameValueSeparator := NativeTab;
+      sl.NameValueSeparator := #9;
       for I := 0 to High(FGroups) do
       begin
         sCount := sl.Values[FGroups[I].Stem1];
         if sCount = '' then
           sl.Values[FGroups[I].Stem1] := '1'
         else
-          sl.Values[FGroups[I].Stem1] := IntToStr(StrToInt(sCount) + 1);
+          sl.Values[FGroups[I].Stem1] := IntToStr(StrToInt(sCount.Trim) + 1);
       end;
 
       for I := 0 to sl.Count - 1 do
@@ -414,7 +415,7 @@ end;
 procedure TConflations.AssignValues(Value: TConflations);
 Var
   I: Integer;
-  P: TConflation;
+  // P: TConflation;
 Begin
   BeginUpdate;
   Try
@@ -434,8 +435,8 @@ begin
   Value.Collection := Self;
 end;
 
-function TConflations.CreateConflation(const AMainStem1, AMainStem2, AWord, AStem1, AStem2: String)
-  : TConflation;
+function TConflations.CreateConflation(const AMainStem1, AMainStem2, AWord,
+  AStem1, AStem2: String): TConflation;
 var
   Idx: Integer;
 begin
@@ -609,6 +610,20 @@ begin
   FConflations.AssignValues(Value);
 end;
 
+function IsEqual(const str1, str2: string): Boolean;
+begin
+  Result := ArabicStr(str1.Trim) = ArabicStr(str2.Trim);
+end;
+
+Function Contains(Const Arr: TStringDynArray; Const sValue: String): Integer;
+Begin
+  For Result := Low(Arr) To High(Arr) Do
+    If IsEqual(Arr[Result], sValue) Then
+      Exit;
+
+  Result := -1;
+End;
+
 begin
   ReportMemoryLeaksOnShutdown := True;
 
@@ -666,10 +681,10 @@ begin
             TagDict.Add(Words[PoSIdx][1], Rec);
           end;
 
-          if (Stems[0] = Words[0]) or (Stems[1] = Words[0]) then
+          if (IsEqual(Stems[0], Words[0]) or IsEqual(Stems[1], Words[0])) then
             Inc(iConstantStemCount);
 
-          if Find(Stems, Words[MyStemIdx]) = -1 then // error in stemming
+          if Contains(Stems, Words[MyStemIdx]) = -1 then // error in stemming
           begin
             TagDict.TryGetValue(Words[PoSIdx][1], Rec);
             Rec.Error := Rec.Error + 1;
@@ -678,7 +693,8 @@ begin
             Inc(ErrorsCount);
             if Length(Stems) = 1 then
             begin
-              if Length(Stems[0]) < Length(Words[MyStemIdx]) then // understemming
+              if Length(Stems[0]) < Length(Words[MyStemIdx]) then
+                // understemming
                 Commission.Add(TestWords[I])
               else
                 Ommission.Add(TestWords[I]);
@@ -686,7 +702,8 @@ begin
             else // length(stems) > 1
             begin
               J := GetMostLikeIdx(Words[MyStemIdx], Stems);
-              if Length(Stems[J]) < Length(Words[MyStemIdx]) then // understemming
+              if Length(Stems[J]) < Length(Words[MyStemIdx]) then
+                // understemming
                 Commission.Add(TestWords[I])
               else
                 Ommission.Add(TestWords[I]);
@@ -694,11 +711,13 @@ begin
           end;
 
           try
-            Understemming.Conflations.CreateConflation(Stems[1], Stems[2], Words[0],
-              Words[MyStemIdx], '');
+            Understemming.Conflations.CreateConflation(ArabicStr(Stems[1].Trim),
+              ArabicStr(Stems[2].Trim), Words[0],
+              ArabicStr(Words[MyStemIdx].Trim), '');
 
-            Overstemming.Conflations.CreateConflation(Words[MyStemIdx], '', Words[0], Stems[1],
-              Stems[2]);
+            Overstemming.Conflations.CreateConflation
+              (ArabicStr(Words[MyStemIdx].Trim), '', Words[0],
+              ArabicStr(Stems[1].Trim), ArabicStr(Stems[2].Trim));
           except
             ShowMessage(IntToStr(I));
             Exit;
@@ -721,7 +740,8 @@ begin
         100 - Percent(ErrorsCount, WordsCount)]));
 
       fPercision := (WordsCount - ErrorsCount) / WordsCount;
-      fRecall := (WordsCount - ErrorsCount) / (WordsCount - ErrorsCount + iConstantStemCount);
+      fRecall := (WordsCount - ErrorsCount) /
+        (WordsCount - ErrorsCount + iConstantStemCount);
       fF := (2 * fPercision * fRecall) / (fPercision + fRecall);
 
       OutputFile.Add(Format('Percision: %0.2f%%', [fPercision * 100]));
@@ -733,27 +753,32 @@ begin
 
       OutputFile.Add('');
       OutputFile.Add(Format('Conflaction Groups in Understemming: %d, %f%%, %f',
-        [Understemming.ConflactionCount, Percent(Understemming.ConflactionCount, WordsCount),
-        WordsCount / Understemming.ConflactionCount]));
-      OutputFile.Add(Format('UI: %f%%, CI: %f%%', [Understemming.UI, Understemming.CI]));
-      OutputFile.Add(Format('Overstemming Groups in Understemming: %d, %f%%, %f',
-        [Overstemming.ConflactionCount, Percent(Overstemming.ConflactionCount, WordsCount),
-        WordsCount / Overstemming.ConflactionCount]));
-      OutputFile.Add(Format('OI: %f%%, OIL: %f%%, DI: %f%%', [Overstemming.OI, Overstemming.OIL,
-        Overstemming.DI]));
-      OutputFile.Add(Format('SW: %f%%, SW: %f%%', [Overstemming.OI / Understemming.UI,
-        Overstemming.OIL / Understemming.UI]));
+        [Understemming.ConflactionCount, Percent(Understemming.ConflactionCount,
+        WordsCount), WordsCount / Understemming.ConflactionCount]));
+      OutputFile.Add(Format('UI: %f%%, CI: %f%%', [Understemming.UI,
+        Understemming.CI]));
+      OutputFile.Add
+        (Format('Overstemming Groups in Understemming: %d, %f%%, %f',
+        [Overstemming.ConflactionCount, Percent(Overstemming.ConflactionCount,
+        WordsCount), WordsCount / Overstemming.ConflactionCount]));
+      OutputFile.Add(Format('OI: %f%%, OIL: %f%%, DI: %f%%',
+        [Overstemming.OI, Overstemming.OIL, Overstemming.DI]));
+      OutputFile.Add(Format('SW: %f%%, SW: %f%%',
+        [Overstemming.OI / Understemming.UI, Overstemming.OIL /
+        Understemming.UI]));
 
       OutputFile.Add('');
       OutputFile.Add(Format('Understemming Errors: %d, %0.2f%%, %0.2f%%',
         [UnderErr, Percent(UnderErr, WordsCount), Percent(UnderErr,
         Understemming.ConflactionCount)]));
       OutputFile.Add(Format('Overstemming Errors: %d, %0.2f%%, %0.2f%%',
-        [OverErr, Percent(OverErr, WordsCount), Percent(OverErr, Overstemming.ConflactionCount)]));
+        [OverErr, Percent(OverErr, WordsCount), Percent(OverErr,
+        Overstemming.ConflactionCount)]));
 
       OutputFile.Add('');
       OutputFile.Add(Format('Commission Errors: %d, %0.2f%%, %0.2f%%',
-        [CommErr, Percent(CommErr, ErrorsCount), Percent(CommErr, WordsCount)]));
+        [CommErr, Percent(CommErr, ErrorsCount), Percent(CommErr,
+        WordsCount)]));
       OutputFile.Add(Format('Ommission Errors: %d, %0.2f%%, %0.2f%%',
         [OmmErr, Percent(OmmErr, ErrorsCount), Percent(OmmErr, WordsCount)]));
 
@@ -767,8 +792,8 @@ begin
         if Rec.Error = 0 then
           Continue;
 
-        OutputFile.Add(Format('%s: %d of %d, %0.2f%%', [sInputFile, Rec.Error, Rec.All,
-          Percent(Rec.Error, Rec.All)]));
+        OutputFile.Add(Format('%s: %d of %d, %0.2f%%', [sInputFile, Rec.Error,
+          Rec.All, Percent(Rec.Error, Rec.All)]));
       end;
 
       OutputFile.Add('');
